@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/md_blue_grey_50"
+    android:orientation="vertical"
+    android:padding="@dimen/margin_large"
+    tools:context=".fun.launch.LaunchActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:text="使用须知"
+        android:textColor="@color/md_grey_600"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:lineSpacingExtra="6dp"
+        android:text="OERunner 需要必要的权限以保证 App 的正常运行，点击下面的申请按钮并授予必要的权限。"
+        android:textColor="@color/md_grey_800"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/al_tv_ask_permission"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/shape_btn_common"
+        android:lineSpacingExtra="6dp"
+        android:padding="8dp"
+        android:text="授予权限"
+        android:textColor="@color/md_white_1000"
+        android:textSize="14sp" />
+</LinearLayout>

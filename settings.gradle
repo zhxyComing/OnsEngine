@@ -1,0 +1,2 @@
+include ':app',':onscripter-engine-android'
+rootProject.name='OnsEngine'
