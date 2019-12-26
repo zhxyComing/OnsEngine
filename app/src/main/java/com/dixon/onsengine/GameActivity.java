@@ -3,65 +3,55 @@ package com.dixon.onsengine;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import androidx.core.content.FileProvider;
-
+import com.dixon.onsengine.core.util.FileUtil;
 import com.onscripter.ONScripterView;
 import com.onscripter.exception.NativeONSException;
 
 import java.io.File;
 
-public class MainActivity extends Activity {
+/**
+ * 使用ONS引擎的Activity 即游戏页面
+ * <p>
+ * 引擎Github https://github.com/matthewn4444/onscripter-engine-android
+ */
+public class GameActivity extends Activity {
 
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//    }
+    private static final String GAME_PATH = "game_path";
 
-    private ONScripterView mGame;
+    private ONScripterView mGameView;
 
-    public static String getSDPath() {
-        File sdDir = null;
-        boolean sdCardExist = Environment.getExternalStorageState()
-                .equals(android.os.Environment.MEDIA_MOUNTED);//判断sd卡是否存在
-        if (sdCardExist) {
-            sdDir = Environment.getExternalStorageDirectory();//获取跟目录
-        }
-        if (sdDir != null) {
-            return sdDir.toString();
-        }
-        return "";
+    public static void startGame(Context context, String path) {
+        Intent intent = new Intent(context, GameActivity.class);
+        intent.putExtra(GAME_PATH, path);
+        context.startActivity(intent);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.e("testkkk", "1");
+        String path = getIntent().getStringExtra(GAME_PATH);
+        if (TextUtils.isEmpty(path)) {
+            finish();
+            return;
+        }
+
         // Defined uri either content:// (external devices like sdcard) or file://
-//        final Uri uri = Uri.fromFile(new File("/path/to/folder/with/game"));
-//        final Uri uri = createUrl(new File(getSDPath() + "/game"));
-//        Log.e("testkkk", "path " + getPath(this, uri));
-
-        final Uri uri = Uri.fromFile(new File(getSDPath() + "/game"));
-
-        mGame = new ONScripterView.Builder(this, uri)
+        final Uri uri = Uri.fromFile(new File(path));
+        mGameView = new ONScripterView.Builder(this, uri)
                 // If you specify a screenshot folder name, relative to the save folder in game,
                 // full sized screenshots are saved after each save
-                .setScreenshotPath("")
+                .setScreenshotPath(FileUtil.getSDPath() + "/OERunnerSetting/ScreenShot/")
                 // Outline of text
                 .useRenderOutline()
                 // Plays higher quality audio
@@ -69,12 +59,10 @@ public class MainActivity extends Activity {
                 // Set a default font path
 //                .setFontPath(defaultFontPath)
                 .create();
-        setContentView(mGame);
-
-        Log.e("testkkk", "3");
+        setContentView(mGameView);
 
         // [Optional] Receive Events from the game
-        mGame.setONScripterEventListener(new ONScripterView.ONScripterEventListener() {
+        mGameView.setONScripterEventListener(new ONScripterView.ONScripterEventListener() {
             @Override
             public void autoStateChanged(boolean selected) {
                 // User has toggled auto mode
@@ -96,6 +84,7 @@ public class MainActivity extends Activity {
                 // If you have your own video player built into your app, you can
                 // pause this thread and play the video. Unfortunately I was unable
                 // to get smpeg library to work within this library
+                // todo need test 1
                 try {
                     Intent i = new Intent(Intent.ACTION_VIEW);
                     i.setDataAndType(uri, "video/*");
@@ -105,41 +94,24 @@ public class MainActivity extends Activity {
                 }
             }
 
-//            @Override
-//            public void videoRequested(String filename, boolean clickToSkip, boolean shouldLoop) {
-//                // Request playing this video in an external video player
-//                // If you have your own video player built into your app, you can
-//                // pause this thread and play the video. Unfortunately I was unable
-//                // to get smpeg library to work within this library
-//                try {
-//                    String filename2 = filename.replace('\\', '/');
-//                    Uri uri = Uri.parse(filename2);
-//                    Intent i = new Intent(Intent.ACTION_VIEW);
-//                    i.setDataAndType(uri, "video/*");
-//                    startActivityForResult(i, -1);
-//                }
-//                catch(Exception e){
-//                    Log.e("ONScripter", "playVideo error:  " + e.getClass().getName());
-//                }
-//            }
-
             @Override
             public void onReady() {
-                Log.w("ONScripter", "Game is ready");
+                Log.e("ONScripter", "Game is ready");
+                // todo need test 2
                 // Load save file, save1.dat
-                // mGame.loadSaveFile(1);
+//                 mGameView.loadSaveFile(1);
             }
 
             @Override
             public void onNativeError(NativeONSException e, String line, String backtrace) {
-                Toast.makeText(MainActivity.this, "An error has occured: " + line, Toast.LENGTH_SHORT).show();
-                Log.w("ONScripter", backtrace);
+                Toast.makeText(GameActivity.this, "An error has occured: " + line, Toast.LENGTH_SHORT).show();
+                Log.e("ONScripter", backtrace);
             }
 
             @Override
             public void onUserMessage(ONScripterView.UserMessage messageId) {
                 if (messageId == ONScripterView.UserMessage.CORRUPT_SAVE_FILE) {
-                    Toast.makeText(MainActivity.this, "Cannot open save file, it is corrupted",
+                    Toast.makeText(GameActivity.this, "Cannot open save file, it is corrupted",
                             Toast.LENGTH_SHORT).show();
                 }
             }
@@ -152,9 +124,9 @@ public class MainActivity extends Activity {
         });
 
         // Center the game in the middle of the screen
-        FrameLayout.LayoutParams p = (FrameLayout.LayoutParams) mGame.getLayoutParams();
+        FrameLayout.LayoutParams p = (FrameLayout.LayoutParams) mGameView.getLayoutParams();
         p.gravity = Gravity.CENTER;
-        mGame.setLayoutParams(p);
+        mGameView.setLayoutParams(p);
 
         // Set black background behind the engine
         findViewById(android.R.id.content).setBackgroundColor(Color.BLACK);
@@ -163,16 +135,16 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (mGame != null) {
-            mGame.onPause();
+        if (mGameView != null) {
+            mGameView.onPause();
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mGame != null) {
-            mGame.onResume();
+        if (mGameView != null) {
+            mGameView.onResume();
         }
 
         // Set immersive mode
@@ -188,9 +160,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-//        if (mGame != null) {
-//            mGame.onStop();
-//        }
     }
 
     @Override
