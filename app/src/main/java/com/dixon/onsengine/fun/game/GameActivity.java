@@ -12,6 +12,7 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,7 +38,9 @@ public class GameActivity extends Activity {
 
     private ONScripterView mGameView;
 
-    private TextView mClickView;
+    // 暂时只增加俩个虚拟键
+    private TextView mClickView, mBackView;
+    private LinearLayout mBoardLayout;
 
     public static void startGame(Context context, String path) {
         Intent intent = new Intent(context, GameActivity.class);
@@ -50,6 +53,8 @@ public class GameActivity extends Activity {
         super.onContentChanged();
         mGameContent = findViewById(R.id.ag_fl_content);
         mClickView = findViewById(R.id.ag_tv_click);
+        mBackView = findViewById(R.id.ag_tv_back);
+        mBoardLayout = findViewById(R.id.ag_ll_board_layout);
     }
 
     @Override
@@ -163,11 +168,12 @@ public class GameActivity extends Activity {
         if (!SharedConfig.Instance().isShowBoard()) {
             return;
         }
-        mClickView.setVisibility(View.VISIBLE);
+        mBoardLayout.setVisibility(View.VISIBLE);
         mClickView.setOnClickListener(v -> {
             // todo test what fun？
-            mGameView.sendNativeKeyPress(KeyEvent.KEYCODE_BACK);
+            mGameView.sendNativeKeyPress(KeyEvent.KEYCODE_DPAD_RIGHT);
         });
+        mBackView.setOnClickListener(v -> mGameView.sendNativeKeyPress(KeyEvent.KEYCODE_BACK));
 
     }
 
