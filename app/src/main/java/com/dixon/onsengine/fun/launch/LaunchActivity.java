@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,8 +13,10 @@ import com.dixon.onsengine.R;
 import com.dixon.onsengine.base.BaseActivity;
 import com.dixon.onsengine.core.util.DialogUtil;
 import com.dixon.onsengine.core.util.Toast;
-import com.dixon.onsengine.fun.home.HomeActivity;
 
+/**
+ * 权限申请页
+ */
 public class LaunchActivity extends BaseActivity {
 
     private TextView mPermissionAskBtn;
@@ -25,12 +26,7 @@ public class LaunchActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
 
-        mPermissionAskBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                runPermissionDetection();
-            }
-        });
+        mPermissionAskBtn.setOnClickListener(v -> runPermissionDetection());
 
         tryToHomePage();
     }
@@ -54,11 +50,11 @@ public class LaunchActivity extends BaseActivity {
                 }
             }
         }
-        goToHome();
+        goToStartPage();
     }
 
-    private void goToHome() {
-        startActivity(new Intent(LaunchActivity.this, HomeActivity.class));
+    private void goToStartPage() {
+        startActivity(new Intent(LaunchActivity.this, StartActivity.class));
         finish();
     }
 
@@ -97,11 +93,6 @@ public class LaunchActivity extends BaseActivity {
     private final String guideDesc = "权限已获得，请将游戏文件解压后拷贝到 /storage/emulated/0/OERunner (即sd卡根目录/OERunner)目录下即可识别，点击 OK 进入首页。";
 
     private void showGuide() {
-        DialogUtil.showGuideDialog(this, guideDesc, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToHome();
-            }
-        });
+        DialogUtil.showGuideDialog(this, guideDesc, v -> goToStartPage());
     }
 }

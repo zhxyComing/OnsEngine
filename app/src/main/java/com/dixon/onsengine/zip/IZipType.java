@@ -1,4 +1,4 @@
-package com.dixon.onsengine.bean;
+package com.dixon.onsengine.zip;
 
 public interface IZipType {
 

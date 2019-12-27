@@ -1,6 +1,7 @@
 package com.dixon.onsengine.bean;
 
 import com.dixon.onsengine.core.util.FileUtil;
+import com.dixon.onsengine.zip.IZipType;
 
 import java.io.File;
 

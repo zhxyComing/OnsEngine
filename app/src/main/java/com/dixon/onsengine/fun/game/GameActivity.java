@@ -1,4 +1,4 @@
-package com.dixon.onsengine;
+package com.dixon.onsengine.fun.game;
 
 import android.app.Activity;
 import android.content.Context;
@@ -9,11 +9,16 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dixon.onsengine.R;
+import com.dixon.onsengine.SharedConfig;
 import com.dixon.onsengine.core.util.FileUtil;
+import com.dixon.onsengine.core.util.ScreenUtil;
 import com.onscripter.ONScripterView;
 import com.onscripter.exception.NativeONSException;
 
@@ -26,9 +31,13 @@ import java.io.File;
  */
 public class GameActivity extends Activity {
 
+    private FrameLayout mGameContent;
+
     private static final String GAME_PATH = "game_path";
 
     private ONScripterView mGameView;
+
+    private TextView mClickView;
 
     public static void startGame(Context context, String path) {
         Intent intent = new Intent(context, GameActivity.class);
@@ -37,8 +46,16 @@ public class GameActivity extends Activity {
     }
 
     @Override
+    public void onContentChanged() {
+        super.onContentChanged();
+        mGameContent = findViewById(R.id.ag_fl_content);
+        mClickView = findViewById(R.id.ag_tv_click);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_game);
 
         String path = getIntent().getStringExtra(GAME_PATH);
         if (TextUtils.isEmpty(path)) {
@@ -59,7 +76,15 @@ public class GameActivity extends Activity {
                 // Set a default font path
 //                .setFontPath(defaultFontPath)
                 .create();
-        setContentView(mGameView);
+        // 自定义加的尺寸设置 有bug -_-!
+        // 目前全屏会让按键错位 后续尝试修复
+        if (SharedConfig.Instance().isFullScreen()) {
+            mGameView.setSize(ScreenUtil.getDisplayWidth(this), ScreenUtil.getDisplayHeight(this));
+        } else {
+            addBoardView();
+        }
+        Log.e("GameActivity", "WH：" + mGameView.getGameWidth() + " " + mGameView.getGameHeight());
+        mGameContent.addView(mGameView);
 
         // [Optional] Receive Events from the game
         mGameView.setONScripterEventListener(new ONScripterView.ONScripterEventListener() {
@@ -84,7 +109,7 @@ public class GameActivity extends Activity {
                 // If you have your own video player built into your app, you can
                 // pause this thread and play the video. Unfortunately I was unable
                 // to get smpeg library to work within this library
-                // todo need test 1
+                // todo need test 1 不确定高版本有没有问题
                 try {
                     Intent i = new Intent(Intent.ACTION_VIEW);
                     i.setDataAndType(uri, "video/*");
@@ -97,7 +122,7 @@ public class GameActivity extends Activity {
             @Override
             public void onReady() {
                 Log.e("ONScripter", "Game is ready");
-                // todo need test 2
+                // 启动时直接跳转至存档1 后续再加
                 // Load save file, save1.dat
 //                 mGameView.loadSaveFile(1);
             }
@@ -126,10 +151,24 @@ public class GameActivity extends Activity {
         // Center the game in the middle of the screen
         FrameLayout.LayoutParams p = (FrameLayout.LayoutParams) mGameView.getLayoutParams();
         p.gravity = Gravity.CENTER;
+//        p.width = FrameLayout.LayoutParams.MATCH_PARENT;
+//        p.height = FrameLayout.LayoutParams.MATCH_PARENT;
         mGameView.setLayoutParams(p);
 
         // Set black background behind the engine
         findViewById(android.R.id.content).setBackgroundColor(Color.BLACK);
+    }
+
+    private void addBoardView() {
+        if (!SharedConfig.Instance().isShowBoard()) {
+            return;
+        }
+        mClickView.setVisibility(View.VISIBLE);
+        mClickView.setOnClickListener(v -> {
+            // todo test what fun？
+            mGameView.sendNativeKeyPress(KeyEvent.KEYCODE_BACK);
+        });
+
     }
 
     @Override
