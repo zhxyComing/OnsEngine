@@ -1,2 +1,2 @@
-include ':app', ':onscripter-engine', ':test'
+include ':app', ':onscripter-engine'
 rootProject.name='OnsEngine'
