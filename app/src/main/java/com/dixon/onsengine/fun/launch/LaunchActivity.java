@@ -90,7 +90,7 @@ public class LaunchActivity extends BaseActivity {
         }
     }
 
-    private final String guideDesc = "权限已获得，请将游戏文件解压后拷贝到 /storage/emulated/0/OERunner (即sd卡根目录/OERunner)目录下即可识别，点击 OK 进入首页。";
+    private final String guideDesc = "权限已获得，请将游戏文件或压缩包直接复制到 /storage/emulated/0/OERunner (即sd卡根目录/OERunner)文件夹下即可识别，点击 OK 进入首页。";
 
     private void showGuide() {
         DialogUtil.showGuideDialog(this, guideDesc, v -> goToStartPage());
