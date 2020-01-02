@@ -88,6 +88,7 @@ public class GameActivity extends Activity {
         } else {
             addBoardView();
         }
+        mGameView.setKeepScreenOn(true);
         Log.e("GameActivity", "WH：" + mGameView.getGameWidth() + " " + mGameView.getGameHeight());
         mGameContent.addView(mGameView);
 
@@ -171,7 +172,7 @@ public class GameActivity extends Activity {
         mBoardLayout.setVisibility(View.VISIBLE);
         mClickView.setOnClickListener(v -> {
             // todo test what fun？
-            mGameView.sendNativeKeyPress(KeyEvent.KEYCODE_DPAD_RIGHT);
+            mGameView.sendNativeKeyPress(KeyEvent.KEYCODE_ENTER);
         });
         mBackView.setOnClickListener(v -> mGameView.sendNativeKeyPress(KeyEvent.KEYCODE_BACK));
 
