@@ -16,6 +16,7 @@ public class SharedConfig {
     private final static String IS_FULL_SCREEN = "is_full_screen";
     private final static String IS_SHOW_BOARD = "is_show_board";
     private final static String IS_DELETE_AFTER_UNZIP = "is_delete_after_unzip";
+    private final static String IS_UPDATE_SHOW_PREFIX = "is_update_show_prefix_";
 
     private static SharedConfig mInstance;
     private static SharedPreferences mPreferences;
@@ -78,6 +79,15 @@ public class SharedConfig {
 
     public boolean isDeleteAfterUnZip() {
         return mPreferences.getBoolean(IS_DELETE_AFTER_UNZIP, true);
+    }
+
+    public boolean setUpdateShown(String versionName) {
+        mEditor.putBoolean(IS_UPDATE_SHOW_PREFIX + versionName, true);
+        return mEditor.commit();
+    }
+
+    public boolean isUpdateShown(String versionName) {
+        return mPreferences.getBoolean(IS_UPDATE_SHOW_PREFIX + versionName, false);
     }
 }
 

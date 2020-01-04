@@ -4,13 +4,17 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -32,6 +36,8 @@ import java.io.File;
  */
 public class GameActivity extends Activity {
 
+    public static GameActivity sCurrentGameActivity = null;
+
     private FrameLayout mGameContent;
 
     private static final String GAME_PATH = "game_path";
@@ -39,8 +45,12 @@ public class GameActivity extends Activity {
     private ONScripterView mGameView;
 
     // 暂时只增加俩个虚拟键
-    private TextView mClickView, mBackView;
-    private LinearLayout mBoardLayout;
+    private TextView mClickView, mBackView, mScreenShotView;
+    private LinearLayout mBoardLayout, mBoardLayoutLeft;
+    // 截图用
+    private MediaProjectionManager mMediaProjectionManager;
+
+    private static final int REQUEST_SCREEN_SHOT = 100;
 
     public static void startGame(Context context, String path) {
         Intent intent = new Intent(context, GameActivity.class);
@@ -55,12 +65,15 @@ public class GameActivity extends Activity {
         mClickView = findViewById(R.id.ag_tv_click);
         mBackView = findViewById(R.id.ag_tv_back);
         mBoardLayout = findViewById(R.id.ag_ll_board_layout);
+        mBoardLayoutLeft = findViewById(R.id.ag_ll_board_layout_left);
+        mScreenShotView = findViewById(R.id.ag_tv_screen_shot);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        sCurrentGameActivity = this;
 
         String path = getIntent().getStringExtra(GAME_PATH);
         if (TextUtils.isEmpty(path)) {
@@ -170,12 +183,49 @@ public class GameActivity extends Activity {
             return;
         }
         mBoardLayout.setVisibility(View.VISIBLE);
+        mBoardLayoutLeft.setVisibility(View.VISIBLE);
         mClickView.setOnClickListener(v -> {
-            // todo test what fun？
             mGameView.sendNativeKeyPress(KeyEvent.KEYCODE_ENTER);
         });
         mBackView.setOnClickListener(v -> mGameView.sendNativeKeyPress(KeyEvent.KEYCODE_BACK));
+        // 截图键
+        mScreenShotView.setOnClickListener(v -> {
+            mMediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+            if (mMediaProjectionManager != null) {
+                startActivityForResult(mMediaProjectionManager.createScreenCaptureIntent(), REQUEST_SCREEN_SHOT);
+            } else {
+                com.dixon.onsengine.core.util.Toast.show(this, "异常，无法截图");
+            }
+        });
+    }
 
+    // 截图回调
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_SCREEN_SHOT) {
+            if (resultCode != Activity.RESULT_OK) {
+                Toast.makeText(this, "取消截图", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            try {
+                WindowManager mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+                DisplayMetrics metrics = new DisplayMetrics();
+                mWindowManager.getDefaultDisplay().getMetrics(metrics);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            Intent service = new Intent(this, ScreenRecorder.class);
+            service.putExtra("code", resultCode);
+            service.putExtra("data", data);//intent
+            service.putExtra("game_width", mGameView.getGameWidth());
+            service.putExtra("game_height", mGameView.getGameHeight());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {// 8.0？
+                startForegroundService(service);
+            } else {
+                com.dixon.onsengine.core.util.Toast.show(this, "当前Android版本较低，暂不支持应用截图，请使用系统截图");
+            }
+        }
     }
 
     @Override
@@ -210,7 +260,12 @@ public class GameActivity extends Activity {
 
     @Override
     public void onDestroy() {
+        sCurrentGameActivity = null;
         // DO NOT EXIT APP HERE, DO IT BEFORE OR PREVIOUS ACTIVITY WILL FREEZE, will fix one day
         super.onDestroy();
+    }
+
+    public MediaProjectionManager getMediaProjectionManager() {
+        return mMediaProjectionManager;
     }
 }

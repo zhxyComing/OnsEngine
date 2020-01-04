@@ -63,6 +63,24 @@ public class DialogUtil {
         show(dialog);
     }
 
+    public static void showTipDialog(Context context, String title, String desc, View.OnClickListener onSureListener) {
+        if (!canShow(context)) {
+            return;
+        }
+        CustomDialog dialog = new CustomDialog.Builder(context)
+                .view(R.layout.dialog_tip)
+                .style(R.style.dialog)
+                .isCancelOnTouchOutSide(true)
+                .windowAnimStyle(R.style.dialogAnim)
+                .widthPx(ScreenUtil.dpToPxInt(context, 280))
+//                .heightPx(ScreenUtils.dpToPxInt(context, 196))
+                .addViewOnClick(R.id.dt_tv_ok, onSureListener)
+                .build();
+        ((TextView) dialog.getView().findViewById(R.id.dt_tv_desc)).setText(desc);
+        ((TextView) dialog.getView().findViewById(R.id.dt_tv_title)).setText(title);
+        show(dialog);
+    }
+
     public static void showGuideDialog(Context context, String desc, View.OnClickListener onSureListener) {
         if (!canShow(context)) {
             return;

@@ -32,6 +32,17 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/ah_tv_other"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/margin_large"
+                android:gravity="bottom"
+                android:paddingBottom="@dimen/margin_normal"
+                android:text="百宝盒"
+                android:textColor="@color/md_grey_600"
+                android:textSize="16sp" />
+
+            <TextView
                 android:id="@+id/ah_tv_set"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -49,119 +60,25 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!--布局一 ListView-->
-        <ListView
-            android:id="@+id/ah_file_list"
+        <!--应用集-->
+        <FrameLayout
+            android:id="@+id/ah_app_store_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!--百宝盒-->
+        <FrameLayout
+            android:id="@+id/ah_other_fun_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:divider="@null" />
+            android:visibility="gone" />
 
-        <LinearLayout
+        <!--设置-->
+        <FrameLayout
             android:id="@+id/ah_set_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <LinearLayout
-                android:id="@+id/ah_ll_ons_set"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="@dimen/margin_large"
-                android:paddingEnd="@dimen/margin_large">
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@mipmap/ic_game_set" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_normal"
-                    android:text="引擎设置"
-                    android:textColor="@color/md_grey_800"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1px"
-                android:layout_marginStart="@dimen/margin_large"
-                android:layout_marginEnd="@dimen/margin_large"
-                android:background="@color/md_grey_300" />
-
-            <LinearLayout
-                android:id="@+id/ah_ll_app_set_tab"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="@dimen/margin_large"
-                android:paddingEnd="@dimen/margin_large">
-
-                <ImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@mipmap/ic_set_set" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_normal"
-                    android:text="应用设置"
-                    android:textColor="@color/md_grey_800"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1px"
-                android:layout_marginStart="@dimen/margin_large"
-                android:layout_marginEnd="@dimen/margin_large"
-                android:background="@color/md_grey_300" />
-
-            <LinearLayout
-                android:id="@+id/ah_ll_about_tab"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="@dimen/margin_large"
-                android:paddingEnd="@dimen/margin_large">
-
-                <ImageView
-                    android:layout_width="27dp"
-                    android:layout_height="27dp"
-                    android:layout_marginStart="1dp"
-                    android:layout_marginTop="2dp"
-                    android:src="@mipmap/ic_message_set" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_normal"
-                    android:text="帮助与反馈"
-                    android:textColor="@color/md_grey_800"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1px"
-                android:layout_marginStart="@dimen/margin_large"
-                android:layout_marginEnd="@dimen/margin_large"
-                android:background="@color/md_grey_300" />
-
-        </LinearLayout>
+            android:visibility="gone" />
 
         <com.dixon.onsengine.core.view.ToastView
             android:id="@+id/ah_tv_exit"

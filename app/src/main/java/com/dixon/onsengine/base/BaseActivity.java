@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import com.dixon.onsengine.core.util.StatusBarUtil;
+import com.umeng.analytics.MobclickAgent;
 
 public class BaseActivity extends Activity {
 
@@ -17,5 +18,15 @@ public class BaseActivity extends Activity {
 
     private void setStatusBar() {
         StatusBarUtil.setColorForStatus(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 }
