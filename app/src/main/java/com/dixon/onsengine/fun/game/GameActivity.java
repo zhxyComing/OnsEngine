@@ -99,7 +99,14 @@ public class GameActivity extends Activity {
         if (SharedConfig.Instance().isFullScreen()) {
             mGameView.setSize(ScreenUtil.getDisplayWidth(this), ScreenUtil.getDisplayHeight(this));
         } else {
-            addBoardView();
+            // 虚拟键80dp 虚拟键外边距22dp 如果游戏尺寸+虚拟键尺寸*2+虚拟键外边距*4>屏幕尺寸 则不显示虚拟键
+            int gameRealWidth = mGameView.getGameWidth() * ScreenUtil.getDisplayHeight(GameActivity.this) / mGameView.getGameHeight();
+            int contentRealWidth = (int) (gameRealWidth + ScreenUtil.dpToPx(GameActivity.this, 80) * 2 + ScreenUtil.dpToPx(GameActivity.this, 22) * 4);
+            if (contentRealWidth > ScreenUtil.getDisplayWidth(this)) {
+                com.dixon.onsengine.core.util.Toast.show(this, "屏幕空间不足，虚拟键已隐藏");
+            } else {
+                addBoardView();
+            }
         }
         mGameView.setKeepScreenOn(true);
         Log.e("GameActivity", "WH：" + mGameView.getGameWidth() + " " + mGameView.getGameHeight());

@@ -3,8 +3,11 @@ package com.dixon.onsengine.fun.home.module;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -13,6 +16,7 @@ import com.dixon.onsengine.SharedConfig;
 import com.dixon.onsengine.bean.FileAndType;
 import com.dixon.onsengine.bean.event.HomeRefreshEvent;
 import com.dixon.onsengine.core.Params;
+import com.dixon.onsengine.core.enumbean.GameType;
 import com.dixon.onsengine.core.module.AbsModule;
 import com.dixon.onsengine.core.module.ModuleContext;
 import com.dixon.onsengine.core.util.DialogUtil;
@@ -30,6 +34,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class AppStoreModule extends AbsModule {
@@ -71,18 +76,36 @@ public class AppStoreModule extends AbsModule {
         EventBus.getDefault().register(this);
     }
 
-    private void startItem(final FileAndType target) {
+    private void startItem(FileAndType target) {
         switch (target.getType()) {
-            case FileAndType.TYPE_GAME:
-                startGame(target.getFile().getPath());
+            case FileAndType.TYPE_DIR:
+                startDir(target);
                 break;
             case FileAndType.TYPE_ZIP:
                 startUnzip(target);
                 break;
-            case FileAndType.TYPE_UNKNOW:
+            case FileAndType.TYPE_UNKNOWN:
                 startUnknownTip();
                 break;
         }
+    }
+
+    private void startDir(FileAndType target) {
+        switch (target.getGameType()) {
+            case GameType.ONS:
+                startOnsGame(target.getFile().getPath());
+                break;
+            case GameType.KRKR:
+                startKrKrGame(target.getFile().getPath());
+                break;
+            default:
+                startUnknownTip();
+                break;
+        }
+    }
+
+    private void startKrKrGame(String path) {
+
     }
 
     /**
@@ -90,7 +113,7 @@ public class AppStoreModule extends AbsModule {
      *
      * @param gamePath
      */
-    private void startGame(final String gamePath) {
+    private void startOnsGame(final String gamePath) {
         DialogUtil.showTipDialog(activity, "点击 OK 启动游戏，或点击空白区域忽略", v -> GameActivity.startGame(activity, gamePath));
     }
 
@@ -100,48 +123,92 @@ public class AppStoreModule extends AbsModule {
      * @param target
      */
     private void startUnzip(FileAndType target) {
-        DialogUtil.showTipDialog(activity, "压缩文件，点击 OK 尝试解压，如解压失败请使用专业解压软件再试", v -> {
-            CustomDialog customDialog = DialogUtil.showProgressDialog(activity);
-            if (customDialog == null) {
-                return;
+
+        CustomDialog dialog = DialogUtil.showUnZipDialog(activity, "压缩文件，点击 OK 尝试解压，如解压失败请使用专业解压软件再试。");
+        View view = dialog.getView();
+        if (view == null) {
+            return;
+        }
+        EditText passwordView = view.findViewById(R.id.dt_et_password);
+        TextView okView = view.findViewById(R.id.dt_tv_ok);
+        okView.setOnClickListener(v -> {
+            String password = passwordView.getText().toString();
+            if (TextUtils.isEmpty(password)) {
+                // 直接普通解压
+                unZip(target);
+            } else {
+                // 加密文件解压缩
+                unZip(target, password);
             }
-            TextView nameView = customDialog.getView().findViewById(R.id.dp_tv_content);
-            TextView sizeView = customDialog.getView().findViewById(R.id.dp_tv_size);
-            UnZipUtil.unZip(target.getFile(), target.getZipType(), new IUnZipCallback() {
-                @Override
-                public void onStart() {
-                    sizeView.setText("解压开始");
-                }
-
-                @Override
-                public void onProgress(String name, long size) {
-                    sizeView.setText(String.format("已解压：%s", SizeFormat.format(size)));
-                    nameView.setText(name);
-                }
-
-                @Override
-                public void onError(String message) {
-                    customDialog.setCanceledOnTouchOutside(true);
-                    sizeView.setText("解压失败");
-                    nameView.setText(message);
-                }
-
-                @Override
-                public void onSucceed() {
-                    customDialog.setCanceledOnTouchOutside(true);
-                    sizeView.setText("解压成功");
-                    deleteAfterUnZip(target.getFile());
-                    loadData();
-                }
-
-                @SuppressLint("DefaultLocale")
-                @Override
-                public void onProcess(int process) {
-                    sizeView.setText(String.format("当前进度：%d", process));
-                    nameView.setText("解压中...");
-                }
-            });
+            dialog.dismiss();
         });
+    }
+
+    private void unZip(FileAndType target, String password) {
+        CustomDialog customDialog = DialogUtil.showProgressDialog(activity);
+        if (customDialog == null) {
+            return;
+        }
+        UnZipUtil.unZip(target.getFile(), target.getZipType(), password, new AppStoreUnZipCallback(customDialog, target.getFile()));
+    }
+
+    private void unZip(FileAndType target) {
+        CustomDialog customDialog = DialogUtil.showProgressDialog(activity);
+        if (customDialog == null) {
+            return;
+        }
+        UnZipUtil.unZip(target.getFile(), target.getZipType(), new AppStoreUnZipCallback(customDialog, target.getFile()));
+    }
+
+    private class AppStoreUnZipCallback implements IUnZipCallback {
+
+        private CustomDialog unZipDialog;
+        private TextView sizeView;
+        private TextView nameView;
+        private File unZipFile;
+
+        public AppStoreUnZipCallback(CustomDialog unZipDialog, File unZipFile) {
+            this.unZipDialog = unZipDialog;
+            this.unZipFile = unZipFile;
+            this.nameView = unZipDialog.getView().findViewById(R.id.dp_tv_content);
+            this.sizeView = unZipDialog.getView().findViewById(R.id.dp_tv_size);
+        }
+
+        @Override
+        public void onStart() {
+            sizeView.setText("解压开始");
+        }
+
+        @Override
+        public void onProgress(String name, long size) {
+            sizeView.setText(String.format("已解压：%s", SizeFormat.format(size)));
+            nameView.setText(name);
+        }
+
+        @Override
+        public void onError(String message) {
+            unZipDialog.setCanceledOnTouchOutside(true);
+            sizeView.setText("解压失败");
+            nameView.setText(message);
+            //刷新页面
+            loadData();
+        }
+
+        @Override
+        public void onSucceed() {
+            unZipDialog.setCanceledOnTouchOutside(true);
+            sizeView.setText("解压成功");
+            deleteAfterUnZip(unZipFile);
+            //刷新页面
+            loadData();
+        }
+
+        @SuppressLint("DefaultLocale")
+        @Override
+        public void onProcess(int process) {
+            sizeView.setText(String.format("当前进度：%d", process));
+            nameView.setText("解压中...");
+        }
     }
 
     // 解压完成删除压缩包
@@ -165,20 +232,27 @@ public class AppStoreModule extends AbsModule {
 
     private List<FileAndType> parseFileList(List<File> fileList) {
         boolean isHideUnknown = SharedConfig.Instance().isHideUnknown();
+        boolean isHideUnknownDir = SharedConfig.Instance().isHideUnknownDir();
         List<FileAndType> list = new ArrayList<>();
-        if (!isHideUnknown) {
-            for (File file : fileList) {
-                list.add(new FileAndType(file));
+
+        // 过滤未知文件
+        for (File file : fileList) {
+            FileAndType fileAndType = new FileAndType(file);
+            if (isHideUnknown &&
+                    fileAndType.getType() == FileAndType.TYPE_UNKNOWN) {
+                continue;
             }
-        } else {
-            // 过滤未知文件
-            for (File file : fileList) {
-                FileAndType fileAndType = new FileAndType(file);
-                if (fileAndType.getType() == FileAndType.TYPE_UNKNOW) {
-                    continue;
-                }
-                list.add(fileAndType);
+            if (isHideUnknownDir &&
+                    fileAndType.getType() == FileAndType.TYPE_DIR &&
+                    fileAndType.getGameType() == GameType.UNKNOW) {
+                continue;
             }
+            list.add(fileAndType);
+        }
+
+        // 排序
+        if (SharedConfig.Instance().isAppSortAsType()) {
+            Collections.sort(list);
         }
         return list;
     }

@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">OERunner</string>
     <string name="ok">OK</string>
+    <string name="ons_game_tag">Ons-Game</string>
+    <string name="krkr_game_tag">KrKr-Game</string>
 </resources>

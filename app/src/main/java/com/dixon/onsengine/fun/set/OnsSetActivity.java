@@ -5,9 +5,8 @@ import android.widget.Switch;
 
 import com.dixon.onsengine.R;
 import com.dixon.onsengine.SharedConfig;
-import com.dixon.onsengine.base.BaseActivity;
 
-public class OnsSetActivity extends BaseActivity {
+public class OnsSetActivity extends BaseSetActivity {
 
     private Switch mFullScreenSetView, mBoardSetView;
 
@@ -20,32 +19,15 @@ public class OnsSetActivity extends BaseActivity {
     }
 
     private void initView() {
-        setFullScreenSetView();
-        setBoardSetView();
-    }
+        // 是否显示虚拟键
+        configSetItem(SharedConfig.Instance().isShowBoard(),
+                mBoardSetView,
+                (buttonView, isChecked) -> SharedConfig.Instance().setShowBoard(isChecked));
 
-    private void setBoardSetView() {
-        boolean isShowBoard = SharedConfig.Instance().isShowBoard();
-        if (isShowBoard) {
-            mBoardSetView.setChecked(true);
-        } else {
-            mBoardSetView.setChecked(false);
-        }
-        mBoardSetView.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            SharedConfig.Instance().setShowBoard(isChecked);
-        });
-    }
-
-    private void setFullScreenSetView() {
-        boolean isFull = SharedConfig.Instance().isFullScreen();
-        if (isFull) {
-            mFullScreenSetView.setChecked(true);
-        } else {
-            mFullScreenSetView.setChecked(false);
-        }
-        mFullScreenSetView.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            SharedConfig.Instance().setFullScreen(isChecked);
-        });
+        // 是否全屏
+        configSetItem(SharedConfig.Instance().isFullScreen(),
+                mFullScreenSetView,
+                (buttonView, isChecked) -> SharedConfig.Instance().setFullScreen(isChecked));
     }
 
     @Override

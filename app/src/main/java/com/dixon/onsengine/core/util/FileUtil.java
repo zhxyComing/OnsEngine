@@ -2,6 +2,7 @@ package com.dixon.onsengine.core.util;
 
 import android.content.Context;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -53,6 +54,17 @@ public class FileUtil {
         return "";
     }
 
+    // 抛去后缀
+    public static String getFileName(File file) {
+        String realName = file.getName();
+        if (realName.contains(".")) {
+            String[] split = realName.split("\\.");
+            realName = split[0];
+        }
+        Log.e("FileUtil", "RealFileName is " + realName);
+        return realName;
+    }
+
     /**
      * 获取文件夹大小
      *
@@ -92,6 +104,14 @@ public class FileUtil {
             deleteDirectory(file);
         } else {
             file.delete();
+        }
+    }
+
+    // 删除mac下压缩生成的垃圾文件
+    public static void deleteMacOsJunkFile(String saveDir){
+        File macos = new File(saveDir + File.separator + "__MACOSX");
+        if (macos.exists()) {
+            FileUtil.deleteFile(macos);
         }
     }
 

@@ -1,24 +1,28 @@
 package com.dixon.onsengine.bean;
 
 import com.dixon.onsengine.core.util.FileUtil;
+import com.dixon.onsengine.core.util.GameUtil;
 import com.dixon.onsengine.zip.IZipType;
 
 import java.io.File;
 
-public class FileAndType {
+public class FileAndType implements Comparable<FileAndType> {
 
-    public static final int TYPE_GAME = 0x001;
+    public static final int TYPE_DIR = 0x001;
     public static final int TYPE_ZIP = 0x002;
-    public static final int TYPE_UNKNOW = 0x003;
+    public static final int TYPE_UNKNOWN = 0x003;
 
     private File file;
     private int type;
     private int zipType;
+    private int gameType;
 
     public FileAndType(File file) {
         this.file = file;
+        // 识别方式有问题 fix
         if (file.isDirectory()) {
-            type = TYPE_GAME;
+            type = TYPE_DIR;
+            gameType = GameUtil.getGameType(file);
         } else {
             switch (FileUtil.getSuffix(file.getName())) {
                 case "zip":
@@ -35,7 +39,7 @@ public class FileAndType {
                     zipType = IZipType.SevenZ;
                     break;
                 default:
-                    type = TYPE_UNKNOW;
+                    type = TYPE_UNKNOWN;
                     break;
             }
         }
@@ -65,8 +69,8 @@ public class FileAndType {
         this.zipType = zipType;
     }
 
-    public boolean isGame() {
-        return this.type == TYPE_GAME;
+    public boolean isDir() {
+        return this.type == TYPE_DIR;
     }
 
     public boolean isZip() {
@@ -74,6 +78,20 @@ public class FileAndType {
     }
 
     public boolean isUnknow() {
-        return this.type == TYPE_UNKNOW;
+        return this.type == TYPE_UNKNOWN;
+    }
+
+    public int getGameType() {
+        return gameType;
+    }
+
+    @Override
+    public int compareTo(FileAndType o) {
+        if (this.type == o.type && this.type == TYPE_DIR) {
+            return this.gameType - o.getGameType();
+        } else if (this.type == o.type && this.type == TYPE_ZIP) {
+            return this.zipType - o.getZipType();
+        }
+        return this.type - o.getType();
     }
 }

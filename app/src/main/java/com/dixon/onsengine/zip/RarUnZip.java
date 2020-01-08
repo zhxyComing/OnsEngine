@@ -1,7 +1,9 @@
 package com.dixon.onsengine.zip;
 
+import com.dixon.onsengine.base.BaseApplication;
 import com.dixon.onsengine.core.Service;
 import com.dixon.onsengine.core.util.HandlerUtil;
+import com.dixon.onsengine.core.util.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -69,6 +71,7 @@ public class RarUnZip implements IUnZipExecutor {
                         sum += file.length();
                     }
                     // rar解压只会在解压完一个完整文件后才回调 所以不用限制频率
+                    // 对于解压大型单个文件 进度很不友好...
                     if (callback != null) {
                         long finalSum = sum;
                         HandlerUtil.runOnUiThread(() -> callback.onProgress(file.getName(), finalSum));
@@ -81,7 +84,7 @@ public class RarUnZip implements IUnZipExecutor {
             } catch (Exception e) {
                 e.printStackTrace();
                 if (callback != null) {
-                    HandlerUtil.runOnUiThread(() -> callback.onError(e.toString()));
+                    HandlerUtil.runOnUiThread(() -> callback.onError("Rar加密算法未开源，无法保证Rar压缩格式文件的解压稳定性，请使用专业Rar格式解压软件解压。错误码：" + e.toString()));
                 }
             } finally {
                 if (fileOut != null) {
@@ -102,5 +105,11 @@ public class RarUnZip implements IUnZipExecutor {
                 }
             }
         });
+    }
+
+    @Override
+    public void unZipWithSecret(File zipFile, String saveDirectory, IUnZipCallback unZipCallback, String password) {
+        // rar 加密算法未开源，直接失败
+        unZipCallback.onError("Rar加密算法未开源，暂不支Rar加密解压。");
     }
 }

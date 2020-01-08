@@ -11,7 +11,9 @@ import android.widget.TextView;
 import com.dixon.onsengine.R;
 import com.dixon.onsengine.bean.FileAndType;
 import com.dixon.onsengine.core.bean.IItemData;
+import com.dixon.onsengine.core.enumbean.GameType;
 import com.dixon.onsengine.core.util.FileUtil;
+import com.dixon.onsengine.core.util.GameUtil;
 import com.dixon.onsengine.core.util.SizeFormat;
 
 import java.io.File;
@@ -56,14 +58,26 @@ public class FileListAdapter extends BaseAdapter implements IItemData<FileAndTyp
         File file = fileAndType.getFile();
         vh.nameView.setText(file.getName());
         vh.sizeView.setText(SizeFormat.format(file.isDirectory() ? FileUtil.getFolderSize(file) : file.length()));
-        if (fileAndType.isGame()) {
-            vh.packView.setText("可运行");
-            vh.tagView.setImageResource(R.mipmap.ic_game);
+        if (fileAndType.isDir()) {
+            switch (fileAndType.getGameType()) {
+                case GameType.ONS:
+                    vh.packView.setText(mContext.getResources().getString(R.string.ons_game_tag));
+                    vh.tagView.setImageResource(R.mipmap.ic_game);
+                    break;
+                case GameType.KRKR:
+                    vh.packView.setText(mContext.getResources().getString(R.string.krkr_game_tag));
+                    vh.tagView.setImageResource(R.mipmap.ic_game);
+                    break;
+                default:
+                    vh.packView.setText("未知文件夹");
+                    vh.tagView.setImageResource(R.mipmap.ic_unknow_dir);
+                    break;
+            }
         } else if (fileAndType.isZip()) {
             vh.packView.setText("可解压");
             vh.tagView.setImageResource(R.mipmap.ic_zip);
         } else {
-            vh.packView.setText("未识别");
+            vh.packView.setText("未知文件");
             vh.tagView.setImageResource(R.mipmap.ic_unknow);
         }
         return convertView;

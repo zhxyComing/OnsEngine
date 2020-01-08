@@ -13,10 +13,12 @@ public class SharedConfig {
     private final static String OE_RUNNER = "oe_runner_config";
 
     private final static String IS_HIDE_UNKNOWN = "is_hide_unknown";
+    private final static String IS_HIDE_UNKNOWN_DIR = "is_hide_unknown_dir";
     private final static String IS_FULL_SCREEN = "is_full_screen";
     private final static String IS_SHOW_BOARD = "is_show_board";
     private final static String IS_DELETE_AFTER_UNZIP = "is_delete_after_unzip";
     private final static String IS_UPDATE_SHOW_PREFIX = "is_update_show_prefix_";
+    private final static String IS_SORT_SHOW_AS_TYPE = "is_sort_show_as_type";
 
     private static SharedConfig mInstance;
     private static SharedPreferences mPreferences;
@@ -50,6 +52,16 @@ public class SharedConfig {
     // 是否隐藏未知文件 默认否
     public boolean isHideUnknown() {
         return mPreferences.getBoolean(IS_HIDE_UNKNOWN, false);
+    }
+
+    public boolean setHideUnknowDir(boolean isHide) {
+        mEditor.putBoolean(IS_HIDE_UNKNOWN_DIR, isHide);
+        return mEditor.commit();
+    }
+
+    // 是否隐藏未知文件夹 默认否
+    public boolean isHideUnknownDir() {
+        return mPreferences.getBoolean(IS_HIDE_UNKNOWN_DIR, false);
     }
 
     public boolean setFullScreen(boolean isFullScreen) {
@@ -88,6 +100,15 @@ public class SharedConfig {
 
     public boolean isUpdateShown(String versionName) {
         return mPreferences.getBoolean(IS_UPDATE_SHOW_PREFIX + versionName, false);
+    }
+
+    public boolean setAppSortAsType(boolean isSort) {
+        mEditor.putBoolean(IS_SORT_SHOW_AS_TYPE, isSort);
+        return mEditor.commit();
+    }
+
+    public boolean isAppSortAsType() {
+        return mPreferences.getBoolean(IS_SORT_SHOW_AS_TYPE, false);
     }
 }
 

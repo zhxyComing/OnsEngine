@@ -5,6 +5,7 @@ import android.widget.GridView;
 
 import com.dixon.onsengine.R;
 import com.dixon.onsengine.base.BaseActivity;
+import com.dixon.onsengine.core.util.DialogUtil;
 import com.dixon.onsengine.core.util.FileUtil;
 
 import java.io.File;
@@ -21,18 +22,40 @@ public class PhotoDisplayActivity extends BaseActivity {
         setContentView(R.layout.activity_photo_display);
 
         initView();
-        initData();
+        loadData();
     }
 
     private void initView() {
         mPhotoGridView.setOnItemClickListener((parent, view, position, id) ->
                 ImageViewerActivity.displayImage(PhotoDisplayActivity.this, mPhotoAdapter.getItems().get(position).getPath()));
+        mPhotoGridView.setOnItemLongClickListener((parent, view, position, id) -> {
+            showDeleteDialog(mPhotoAdapter.getItems().get(position));
+            return true;
+        });
     }
 
-    private void initData() {
+    /**
+     * 长按删除弹窗
+     *
+     * @param file
+     */
+    private void showDeleteDialog(File file) {
+        DialogUtil.showDeleteDialog(this, v -> {
+            FileUtil.deleteFile(file);
+            loadData();
+        });
+    }
+
+    private void loadData() {
         List<File> fileList = FileUtil.getFileList(FileUtil.getSDPath() + "/OERunnerSetting/ScreenShot/");
-        mPhotoAdapter = new PhotoListAdapter(this, fileList);
-        mPhotoGridView.setAdapter(mPhotoAdapter);
+        if (mPhotoAdapter == null) {
+            mPhotoAdapter = new PhotoListAdapter(this, fileList);
+            mPhotoGridView.setAdapter(mPhotoAdapter);
+        } else {
+            mPhotoAdapter.getItems().clear();
+            mPhotoAdapter.getItems().addAll(fileList);
+            mPhotoAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override

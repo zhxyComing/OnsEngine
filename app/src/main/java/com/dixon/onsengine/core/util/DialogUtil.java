@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Looper;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.dixon.onsengine.R;
@@ -118,6 +119,23 @@ public class DialogUtil {
                 .widthPx(ScreenUtil.dpToPxInt(context, 280))
 //                .heightPx(ScreenUtils.dpToPxInt(context, 196))
                 .build();
+        show(dialog);
+        return dialog;
+    }
+
+    public static CustomDialog showUnZipDialog(Context context, String desc) {
+        if (!canShow(context)) {
+            return null;
+        }
+        CustomDialog dialog = new CustomDialog.Builder(context)
+                .view(R.layout.dialog_unzip)
+                .style(R.style.dialog)
+                .isCancelOnTouchOutSide(true)
+                .windowAnimStyle(R.style.dialogAnim)
+                .widthPx(ScreenUtil.dpToPxInt(context, 280))
+//                .heightPx(ScreenUtils.dpToPxInt(context, 196))
+                .build();
+        ((TextView) dialog.getView().findViewById(R.id.dt_tv_desc)).setText(desc);
         show(dialog);
         return dialog;
     }
