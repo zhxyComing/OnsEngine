@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.dixon.onsengine.R;
 import com.dixon.onsengine.SharedConfig;
 import com.dixon.onsengine.core.util.FileUtil;
+import com.dixon.onsengine.core.util.GameUtil;
 import com.dixon.onsengine.core.util.ScreenUtil;
 import com.onscripter.ONScripterView;
 import com.onscripter.exception.NativeONSException;
@@ -45,7 +46,7 @@ public class GameActivity extends Activity {
     private ONScripterView mGameView;
 
     // 暂时只增加俩个虚拟键
-    private TextView mClickView, mBackView, mScreenShotView;
+    private TextView mClickView, mBackView, mScreenShotView, mHideView;
     private LinearLayout mBoardLayout, mBoardLayoutLeft;
     // 截图用
     private MediaProjectionManager mMediaProjectionManager;
@@ -67,6 +68,7 @@ public class GameActivity extends Activity {
         mBoardLayout = findViewById(R.id.ag_ll_board_layout);
         mBoardLayoutLeft = findViewById(R.id.ag_ll_board_layout_left);
         mScreenShotView = findViewById(R.id.ag_tv_screen_shot);
+        mHideView = findViewById(R.id.ag_tv_hide);
     }
 
     @Override
@@ -80,9 +82,16 @@ public class GameActivity extends Activity {
             finish();
             return;
         }
+        // 有可能文件夹下包了一层文件夹 这种是解压问题？ 但是无法正确识别
+        String realPath = GameUtil.getGameRealPath(path);
+        if (TextUtils.isEmpty(realPath)) {
+            com.dixon.onsengine.core.util.Toast.show(GameActivity.this, "非游戏文件！");
+            finish();
+            return;
+        }
 
         // Defined uri either content:// (external devices like sdcard) or file://
-        final Uri uri = Uri.fromFile(new File(path));
+        final Uri uri = Uri.fromFile(new File(realPath));
         mGameView = new ONScripterView.Builder(this, uri)
                 // If you specify a screenshot folder name, relative to the save folder in game,
                 // full sized screenshots are saved after each save
@@ -101,7 +110,7 @@ public class GameActivity extends Activity {
         } else {
             // 虚拟键80dp 虚拟键外边距22dp 如果游戏尺寸+虚拟键尺寸*2+虚拟键外边距*4>屏幕尺寸 则不显示虚拟键
             int gameRealWidth = mGameView.getGameWidth() * ScreenUtil.getDisplayHeight(GameActivity.this) / mGameView.getGameHeight();
-            int contentRealWidth = (int) (gameRealWidth + ScreenUtil.dpToPx(GameActivity.this, 80) * 2 + ScreenUtil.dpToPx(GameActivity.this, 22) * 4);
+            int contentRealWidth = (int) (gameRealWidth + ScreenUtil.dpToPx(GameActivity.this, 80) * 2 + ScreenUtil.dpToPx(GameActivity.this, 22) * 2);
             if (contentRealWidth > ScreenUtil.getDisplayWidth(this)) {
                 com.dixon.onsengine.core.util.Toast.show(this, "屏幕空间不足，虚拟键已隐藏");
             } else {
@@ -204,6 +213,14 @@ public class GameActivity extends Activity {
                 com.dixon.onsengine.core.util.Toast.show(this, "异常，无法截图");
             }
         });
+        // 最小化
+        mHideView.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            com.dixon.onsengine.core.util.Toast.show(GameActivity.this, "最小化");
+        });
     }
 
     // 截图回调
@@ -249,7 +266,10 @@ public class GameActivity extends Activity {
         if (mGameView != null) {
             mGameView.onResume();
         }
+        setImmersiveMode();
+    }
 
+    private void setImmersiveMode() {
         // Set immersive mode
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE

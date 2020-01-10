@@ -151,7 +151,6 @@
             android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginStart="@dimen/margin_large"
-            android:padding="2dp"
             android:src="@mipmap/ic_sort_app_set" />
 
         <LinearLayout

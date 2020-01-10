@@ -82,4 +82,10 @@ dependencies {
 
     //支持密码解压
     implementation 'com.hzy:libp7zip:1.7.0'
+
+    //圆形view
+    implementation 'de.hdodenhof:circleimageview:3.0.1'
+
+    // gson
+    api 'com.google.code.gson:gson:2.8.6'
 }

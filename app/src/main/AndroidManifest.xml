@@ -6,9 +6,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /><!-- 截图需要 -->
-
-    <!--友盟统计-->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- 截图需要 -->
+    <!-- 友盟统计 -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -24,6 +23,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".fun.path.PathSetActivity"></activity>
+        <activity android:name=".fun.path.PathActivity" />
         <activity android:name=".fun.photo.ImageViewerActivity" />
         <activity
             android:name=".fun.photo.PhotoDisplayActivity"

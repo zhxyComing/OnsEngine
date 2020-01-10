@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/ifl_iv_icon"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="5dp"
+        android:scaleType="centerCrop"
+        app:civ_border_color="#00ffffff"
+        app:civ_border_width="1dp" />
+
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="60dp"
-        android:layout_marginLeft="20dp"
+        android:layout_marginStart="12dp"
         android:layout_marginTop="20dp"
-        android:layout_marginRight="20dp"
+        android:layout_marginEnd="20dp"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -20,6 +32,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="bottom"
+            android:singleLine="true"
             android:text="测试标题"
             android:textColor="@color/md_grey_800"
             android:textSize="18sp"
@@ -57,22 +70,6 @@
                 android:text="未解压"
                 android:textColor="@color/md_grey_400"
                 android:textSize="14sp" />
-
-            <ImageView
-                android:layout_width="5dp"
-                android:layout_height="5dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="@dimen/margin_normal"
-                android:layout_marginRight="@dimen/margin_normal"
-                android:src="@mipmap/ic_point" />
-
-            <ImageView
-                android:id="@+id/ifl_iv_tag"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginEnd="@dimen/margin_normal"
-                android:src="@mipmap/ic_zip" />
 
         </LinearLayout>
 

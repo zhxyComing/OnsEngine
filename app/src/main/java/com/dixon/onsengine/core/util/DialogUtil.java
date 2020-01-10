@@ -31,6 +31,23 @@ public class DialogUtil {
         show(dialog);
     }
 
+    public static void showWarnTipDialog(Context context, String desc, View.OnClickListener onSureListener) {
+        if (!canShow(context)) {
+            return;
+        }
+        CustomDialog dialog = new CustomDialog.Builder(context)
+                .view(R.layout.dialog_warn_tip)
+                .style(R.style.dialog)
+                .isCancelOnTouchOutSide(false)
+                .windowAnimStyle(R.style.dialogAnim)
+                .widthPx(ScreenUtil.dpToPxInt(context, 280))
+//                .heightPx(ScreenUtils.dpToPxInt(context, 196))
+                .addViewOnClick(R.id.dt_tv_ok, onSureListener)
+                .build();
+        ((TextView) dialog.getView().findViewById(R.id.dt_tv_desc)).setText(desc);
+        show(dialog);
+    }
+
     public static void showDeleteDialog(Context context, View.OnClickListener onSureListener) {
         if (!canShow(context)) {
             return;

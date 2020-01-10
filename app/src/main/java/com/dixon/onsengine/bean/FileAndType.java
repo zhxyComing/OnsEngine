@@ -1,5 +1,6 @@
 package com.dixon.onsengine.bean;
 
+import com.dixon.onsengine.core.enumbean.GameType;
 import com.dixon.onsengine.core.util.FileUtil;
 import com.dixon.onsengine.core.util.GameUtil;
 import com.dixon.onsengine.zip.IZipType;
@@ -16,6 +17,7 @@ public class FileAndType implements Comparable<FileAndType> {
     private int type;
     private int zipType;
     private int gameType;
+    private String icon;
 
     public FileAndType(File file) {
         this.file = file;
@@ -23,6 +25,7 @@ public class FileAndType implements Comparable<FileAndType> {
         if (file.isDirectory()) {
             type = TYPE_DIR;
             gameType = GameUtil.getGameType(file);
+            initIconPath(gameType);
         } else {
             switch (FileUtil.getSuffix(file.getName())) {
                 case "zip":
@@ -42,6 +45,12 @@ public class FileAndType implements Comparable<FileAndType> {
                     type = TYPE_UNKNOWN;
                     break;
             }
+        }
+    }
+
+    private void initIconPath(int gameType) {
+        if (gameType == GameType.ONS) {
+            this.icon = GameUtil.getGameIconPath(file);
         }
     }
 
@@ -83,6 +92,14 @@ public class FileAndType implements Comparable<FileAndType> {
 
     public int getGameType() {
         return gameType;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 
     @Override

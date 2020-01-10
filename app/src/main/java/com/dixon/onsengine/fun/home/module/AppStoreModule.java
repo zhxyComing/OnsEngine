@@ -219,7 +219,14 @@ public class AppStoreModule extends AbsModule {
     }
 
     private void loadData() {
-        List<FileAndType> list = parseFileList(FileUtil.getFileList(Params.getGameDirectory()));
+        List<File> fileList = FileUtil.getFileList(Params.getGameDirectory());
+        List<String> otherPath;
+        if ((otherPath = SharedConfig.Instance().getGameDirPath()) != null) {
+            for (String path : otherPath) {
+                fileList.addAll(FileUtil.getFileList(path));
+            }
+        }
+        List<FileAndType> list = parseFileList(fileList);
         if (mFileListAdapter == null) {
             mFileListAdapter = new FileListAdapter(activity, list);
             mFileListView.setAdapter(mFileListAdapter);
@@ -230,6 +237,7 @@ public class AppStoreModule extends AbsModule {
         }
     }
 
+    // todo 条件抽离
     private List<FileAndType> parseFileList(List<File> fileList) {
         boolean isHideUnknown = SharedConfig.Instance().isHideUnknown();
         boolean isHideUnknownDir = SharedConfig.Instance().isHideUnknownDir();

@@ -12,6 +12,7 @@ import com.dixon.onsengine.R;
 import com.dixon.onsengine.core.module.AbsModule;
 import com.dixon.onsengine.core.module.ModuleContext;
 import com.dixon.onsengine.fun.home.HomeActivity;
+import com.dixon.onsengine.fun.path.PathActivity;
 import com.dixon.onsengine.fun.photo.PhotoDisplayActivity;
 
 public class OtherFunModule extends AbsModule {
@@ -19,7 +20,7 @@ public class OtherFunModule extends AbsModule {
     private Activity activity;
     private ViewGroup parentViewGroup;
 
-    private LinearLayout mPhotoLayout;
+    private LinearLayout mPhotoLayout, mPathLayout;
 
     @Override
     public void init(ModuleContext moduleContext) {
@@ -36,10 +37,12 @@ public class OtherFunModule extends AbsModule {
 
     private void initClick() {
         mPhotoLayout.setOnClickListener(v -> activity.startActivity(new Intent(activity, PhotoDisplayActivity.class)));
+        mPathLayout.setOnClickListener(v -> activity.startActivity(new Intent(activity, PathActivity.class)));
     }
 
     private void findView() {
         mPhotoLayout = parentViewGroup.findViewById(R.id.mhof_ll_photo);
+        mPathLayout = parentViewGroup.findViewById(R.id.mhof_ll_path);
     }
 
     @Override

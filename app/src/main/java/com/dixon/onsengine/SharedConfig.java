@@ -3,6 +3,13 @@ package com.dixon.onsengine;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.text.TextUtils;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 基于SharedPreferences的配置存储
@@ -19,6 +26,7 @@ public class SharedConfig {
     private final static String IS_DELETE_AFTER_UNZIP = "is_delete_after_unzip";
     private final static String IS_UPDATE_SHOW_PREFIX = "is_update_show_prefix_";
     private final static String IS_SORT_SHOW_AS_TYPE = "is_sort_show_as_type";
+    private final static String PATH_GAME_READ = "path_game_read";
 
     private static SharedConfig mInstance;
     private static SharedPreferences mPreferences;
@@ -90,7 +98,7 @@ public class SharedConfig {
     }
 
     public boolean isDeleteAfterUnZip() {
-        return mPreferences.getBoolean(IS_DELETE_AFTER_UNZIP, true);
+        return mPreferences.getBoolean(IS_DELETE_AFTER_UNZIP, false);
     }
 
     public boolean setUpdateShown(String versionName) {
@@ -108,7 +116,39 @@ public class SharedConfig {
     }
 
     public boolean isAppSortAsType() {
-        return mPreferences.getBoolean(IS_SORT_SHOW_AS_TYPE, false);
+        return mPreferences.getBoolean(IS_SORT_SHOW_AS_TYPE, true);
+    }
+
+    public boolean addGameDirPath(String path) {
+        List<String> pathList = getGameDirPath();
+        if (pathList == null) {
+            pathList = new ArrayList<>();
+        }
+        if (pathList.contains(path)) {
+            return false;
+        }
+        pathList.add(path);
+        mEditor.putString(PATH_GAME_READ, new Gson().toJson(pathList));
+        return mEditor.commit();
+    }
+
+    public boolean deleteGameDirPath(String path) {
+        List<String> pathList = getGameDirPath();
+        if (pathList == null || pathList.size() == 0 || !pathList.contains(path)) {
+            return false;
+        }
+        pathList.remove(path);
+        mEditor.putString(PATH_GAME_READ, new Gson().toJson(pathList));
+        return mEditor.commit();
+    }
+
+    public List<String> getGameDirPath() {
+        String pathJson = mPreferences.getString(PATH_GAME_READ, "");
+        if (TextUtils.isEmpty(pathJson)) {
+            return null;
+        }
+        return new Gson().fromJson(pathJson, new TypeToken<List<String>>() {
+        }.getType());
     }
 }
 

@@ -2,12 +2,16 @@ package com.dixon.onsengine.core.util;
 
 import android.content.Context;
 import android.os.Environment;
+import android.os.storage.StorageManager;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,6 +34,45 @@ public class FileUtil {
         }
         Collections.sort(arrayList, new FileNameComparator());
         return arrayList;
+    }
+
+    public static List<File> getDirList(String path) {
+        ArrayList<File> arrayList = new ArrayList<>();
+        File file = new File(path);
+        if (!file.exists() && !file.mkdirs()) {
+            Log.e("FileUtil", "Create Fail");
+            return arrayList;
+        }
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    if (f.isDirectory()) {
+                        arrayList.add(f);
+                    }
+                }
+            }
+        }
+        Collections.sort(arrayList, new FileNameComparator());
+        return arrayList;
+    }
+
+    public static int getDirCount(File file) {
+        int count = 0;
+        if (!file.exists()) {
+            return 0;
+        }
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    if (f.isDirectory()) {
+                        count++;
+                    }
+                }
+            }
+        }
+        return count;
     }
 
     public static String getSDPath() {
@@ -108,7 +151,7 @@ public class FileUtil {
     }
 
     // 删除mac下压缩生成的垃圾文件
-    public static void deleteMacOsJunkFile(String saveDir){
+    public static void deleteMacOsJunkFile(String saveDir) {
         File macos = new File(saveDir + File.separator + "__MACOSX");
         if (macos.exists()) {
             FileUtil.deleteFile(macos);
@@ -151,5 +194,37 @@ public class FileUtil {
         } catch (IOException ex) {
             return "";
         }
+    }
+
+    /**
+     * 通过反射调用获取内置存储和外置sd卡根路径(通用)
+     *
+     * @param mContext 上下文
+     * @param tag      是否可移除，false返回内部存储，true返回外置sd卡
+     * @return
+     */
+    public static String getStoragePath(Context mContext, boolean tag) {
+
+        StorageManager mStorageManager = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
+        Class<?> storageVolumeClazz = null;
+        try {
+            storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
+            Method getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
+            Method getPath = storageVolumeClazz.getMethod("getPath");
+            Method isRemovable = storageVolumeClazz.getMethod("isRemovable");
+            Object result = getVolumeList.invoke(mStorageManager);
+            final int length = Array.getLength(result);
+            for (int i = 0; i < length; i++) {
+                Object storageVolumeElement = Array.get(result, i);
+                String path = (String) getPath.invoke(storageVolumeElement);
+                boolean removable = (Boolean) isRemovable.invoke(storageVolumeElement);
+                if (tag == removable) {
+                    return path;
+                }
+            }
+        } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
